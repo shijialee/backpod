@@ -1,0 +1,4 @@
+
+
+* get checkbot.io daily snapshot url from 20210101, trying to exclude duplicate. `--digest` will exclude adjacent dupe. `--uniques-only` will exclude based on non-adjacent dupe digest.
+  * `python3 snapshot_urls.py checkbot.io --from-date 20210101 --collapse timestamp:8 --collapse digest --uniques-only`
