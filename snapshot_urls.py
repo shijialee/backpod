@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-from session import Session
-from cdx import search
-from settings import DEFAULT_USER_AGENT, DEFAULT_ROOT
+from .session import Session
+from .cdx import search
+from .settings import DEFAULT_USER_AGENT, DEFAULT_ROOT
 import argparse
 import logging
 
@@ -21,7 +21,7 @@ def parse_args():
 
     parser.add_argument("--collapse",
         help="An archive.org `collapse` parameter. Cf.: https://github.com/internetarchive/wayback/blob/master/wayback-cdx-server/README.md#collapsing",
-	action='append')
+        action='append')
 
     parser.add_argument("--user-agent",
         help="The User-Agent header to send along with your requests to the Wayback Machine. If possible, please include the phrase 'waybackpack' and your email address. That way, if you're battering their servers, they know who to contact. Default: '{0}'.".format(DEFAULT_USER_AGENT),
@@ -34,6 +34,9 @@ def parse_args():
     parser.add_argument("--uniques-only",
         help="Download only the first version of duplicate files.",
         action="store_true")
+
+    parser.add_argument("--limit",
+        help="Limit number of records to return")
 
     parser.add_argument("--max-retries",
         help="How many times to try accessing content with 4XX or 5XX status code before skipping?",
@@ -48,15 +51,8 @@ def parse_args():
     return args
 
 
-def main():
-    args = parse_args()
-
-    logging.basicConfig(
-        level=(logging.WARN if args.quiet else logging.INFO),
-        format="%(levelname)s:%(name)s: %(message)s"
-    )
-
-    session = Session(
+def snapshot_urls(args, session = None):
+    session = session or Session(
         user_agent=args.user_agent,
         follow_redirects=args.follow_redirects,
         max_retries=args.max_retries
@@ -67,7 +63,8 @@ def main():
         from_date=args.from_date,
         to_date=args.to_date,
         uniques_only=args.uniques_only,
-        collapse=args.collapse
+        collapse=args.collapse,
+        limit=args.limit
     )
 
     urls = []
@@ -78,8 +75,17 @@ def main():
                 url=args.url,
             )
         )
-    print("\n".join(urls))
+    return urls
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+
+    logging.basicConfig(
+        level=(logging.WARN if args.quiet else logging.INFO),
+        format="%(levelname)s:%(name)s: %(message)s"
+    )
+
+    urls = snapshot_urls(args)
+    print("\n".join(urls))
+

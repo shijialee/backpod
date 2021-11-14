@@ -1,4 +1,4 @@
-from settings import DEFAULT_USER_AGENT
+from .settings import DEFAULT_USER_AGENT
 import requests
 import time
 import logging

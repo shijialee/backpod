@@ -1,4 +1,8 @@
+## Intro
 
+Visit a url history snapshot and output <item></item> content
 
 * get checkbot.io daily snapshot url from 20210101, trying to exclude duplicate. `--digest` will exclude adjacent dupe. `--uniques-only` will exclude based on non-adjacent dupe digest.
   * `python3 snapshot_urls.py checkbot.io --from-date 20210101 --collapse timestamp:8 --collapse digest --uniques-only`
+* cd into backpod/ parent directory, python3 -m backpod.cli https://feeds.npr.org/510289/podcast.xml
+    * `python3 -m backpod.cli https://www.npr.org/rss/podcast.php?id=510289 --follow-redirects --quiet >> money.xml`

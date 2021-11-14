@@ -1,4 +1,4 @@
-from session import Session
+from .session import Session
 import logging
 logger = logging.getLogger(__name__)
 
@@ -9,6 +9,7 @@ def search(url,
     to_date=None,
     uniques_only=False,
     collapse=None,
+    limit=None,
     session=None):
 
     session = session or Session()
@@ -16,6 +17,7 @@ def search(url,
         "url": url,
         "from": from_date,
         "to": to_date,
+        "limit": limit,
         "showDupeCount": "true",
         "output": "json",
         "collapse": collapse
