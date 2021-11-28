@@ -12,6 +12,7 @@ from dateutil.parser import parse
 
 logger = logging.getLogger(__name__)
 main_url = None
+close_tag = False
 
 
 def parse_args():
@@ -41,7 +42,7 @@ def parse_args():
     return args
 
 
-def main(args, session):
+def main(args, session, first_request=False):
     logger.info('fetching {0}'.format(args.url))
     res = session.get(args.url)
 
@@ -51,12 +52,12 @@ def main(args, session):
             res.content.decode("utf-8").strip()
         ))
         return None
+    if 'text/xml' not in res.headers['content-type']:
+        return None
 
     parser = etree.XMLParser(strip_cdata=False)
     root = etree.fromstring(res.content, parser=parser, base_url=res.url)
     selector = Selector(root=root, type='xml')
-    #selector = Selector(text=res.text, type='xml')
-    #selector.register_namespace('itunes','http://www.itunes.com/dtds/podcast-1.0.dtd')
     if selector.xpath('//item').get() is None:
         # no shows
         return None
@@ -69,11 +70,16 @@ def main(args, session):
         log_msg = 'show count "{0}", first pub date "{1}, last "{2}"'
         logger.info(log_msg.format(episode_count, first_pub_date, last_pub_date))
 
+        if first_request:
+            # open tag
+            index = res.text.find('<item>')
+            print(res.text[0:index])
+            close_tag = True
+
         # need this line, otherwise namespaces are added to each <item>
         selector.remove_namespaces()
         items = selector.xpath('//item').getall()
         print("\n".join(items))
-
 
         # get wayback url
         dt = get_date(first_pub_date)
@@ -86,14 +92,14 @@ def main(args, session):
         args.to_date = previous_date_dt.strftime('%Y%m%d')
         args.limit = '-2'
         args.uniques_only = True
-        # reset to wayback url
+        # reset to get the snapshot url for the original url
         args.url = main_url
         args.collapse = ['timestamp:8', 'digest']
         logger.info('from {0} to {1}'.format(args.from_date, args.to_date))
         urls = snapshot_urls(args, session)
-        #urls = []
 
         if urls:
+            # we get wayback url here
             args.url = urls[0]
             main(args, session)
 
@@ -122,6 +128,7 @@ def get_date(datetime_str):
 if __name__ == "__main__":
     args = parse_args()
     main_url = args.url
+    first_request = True
 
     logging.basicConfig(
         level=(logging.WARN if args.quiet else logging.INFO),
@@ -134,4 +141,7 @@ if __name__ == "__main__":
         follow_redirects=args.follow_redirects,
     )
 
-    main(args, session)
+    main(args, session, first_request)
+    if close_tag:
+        print("\n    </channel>\n</rss>")
+
