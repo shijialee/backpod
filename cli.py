@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import time
+
 from .session import Session
 from .settings import DEFAULT_USER_AGENT, DEFAULT_ROOT
 from .snapshot_urls import snapshot_urls
@@ -8,11 +10,9 @@ import datetime
 from parsel import Selector
 import lxml.etree as etree
 from dateutil.parser import parse
-
-
-logger = logging.getLogger(__name__)
-main_url = None
-close_tag = False
+import sqlite3
+import os
+import uuid
 
 
 def parse_args():
@@ -42,7 +42,7 @@ def parse_args():
     return args
 
 
-def main(args, session, first_request=False):
+def main(args, session, fh, first_request=False):
     logger.info('fetching {0}'.format(args.url))
     res = session.get(args.url)
 
@@ -73,13 +73,13 @@ def main(args, session, first_request=False):
         if first_request:
             # open tag
             index = res.text.find('<item>')
-            print(res.text[0:index])
+            fh.write(res.text[0:index])
             close_tag = True
 
         # need this line, otherwise namespaces are added to each <item>
         selector.remove_namespaces()
         items = selector.xpath('//item').getall()
-        print("\n".join(items))
+        fh.write("\n".join(items))
 
         # get wayback url
         dt = get_date(first_pub_date)
@@ -93,7 +93,7 @@ def main(args, session, first_request=False):
         args.limit = '-2'
         args.uniques_only = True
         # reset to get the snapshot url for the original url
-        args.url = main_url
+        args.url = args.original_url
         args.collapse = ['timestamp:8', 'digest']
         logger.info('from {0} to {1}'.format(args.from_date, args.to_date))
         urls = snapshot_urls(args, session)
@@ -101,7 +101,9 @@ def main(args, session, first_request=False):
         if urls:
             # we get wayback url here
             args.url = urls[0]
-            main(args, session)
+            main(args, session, fh)
+        else:
+            return
 
 
 def get_date(datetime_str):
@@ -125,10 +127,25 @@ def get_date(datetime_str):
         return None
 
 
+def get_db_connection():
+    db_file = os.path.join(db_root, 'db.sqlite')
+    conn = sqlite3.connect(db_file)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def get_next_job():
+    min_time = datetime.datetime.now() - datetime.timedelta(minutes=10)
+    min_time_str = min_time.strftime('%Y-%m-%d %H:%M:%S')
+    return conn.execute(f'SELECT id, url FROM feed WHERE status is null AND created_at > {min_time_str} order by id')
+
+
 if __name__ == "__main__":
+    db_root = '/app/db'
+    static_root = '/app/static'
+
+    logger = logging.getLogger(__name__)
     args = parse_args()
-    main_url = args.url
-    first_request = True
 
     logging.basicConfig(
         level=(logging.WARN if args.quiet else logging.INFO),
@@ -141,7 +158,28 @@ if __name__ == "__main__":
         follow_redirects=args.follow_redirects,
     )
 
-    main(args, session, first_request)
-    if close_tag:
-        print("\n    </channel>\n</rss>")
+    conn = get_db_connection()
+
+    while True:
+        status = 'FAIL'
+        close_tag = False
+        first_request = True
+        # get job
+        job = get_next_job()
+        if job is None:
+            time.sleep(5)
+            continue
+
+        args.url = job['url']
+        args.original_url = job['url']
+
+        xml_file = str(uuid.uuid4())
+        xml_file_path = os.path.join(static_root, xml_file)
+        with open(xml_file_path, "w") as fh:
+            main(args, session, fh, first_request)
+            if close_tag:
+                fh.write("\n    </channel>\n</rss>")
+                status = 'SUCCESS'
+
+        conn.execute('UPDATE feed SET status = ?, file = ? WHERE id = ?', (status, xml_file, job['id']))
 
