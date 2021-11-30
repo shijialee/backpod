@@ -2,7 +2,7 @@
 import time
 
 from .session import Session
-from .settings import DEFAULT_USER_AGENT, DEFAULT_ROOT
+from .settings import DEFAULT_USER_AGENT
 from .snapshot_urls import snapshot_urls
 import argparse
 import logging
@@ -18,8 +18,8 @@ import uuid
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("url",
-        help="The URL of the resource you want to download.")
+    # parser.add_argument("url",
+    #     help="The URL of the resource you want to download.")
 
     parser.add_argument("--user-agent",
         help="The User-Agent header to send along with your requests to the Wayback Machine. If possible, please include the phrase 'waybackpack' and your email address. That way, if you're battering their servers, they know who to contact. Default: '{0}'.".format(DEFAULT_USER_AGENT),
@@ -32,14 +32,15 @@ def parse_args():
 
     parser.add_argument("--follow-redirects",
         help="Follow redirects.",
-        action="store_true")
+        action="store_true",
+        default=True)
 
     parser.add_argument("--quiet",
         action="store_true",
         help="Don't log progress to stderr.")
 
-    args = parser.parse_args()
-    return args
+    tmp_args = parser.parse_args()
+    return tmp_args
 
 
 def main(args, session, fh, first_request=False):
