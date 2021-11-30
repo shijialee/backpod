@@ -74,6 +74,7 @@ def main(args, session, fh, first_request=False):
             # open tag
             index = res.text.find('<item>')
             fh.write(res.text[0:index])
+            global close_tag
             close_tag = True
 
         # need this line, otherwise namespaces are added to each <item>
@@ -129,21 +130,25 @@ def get_date(datetime_str):
 
 def get_db_connection():
     db_file = os.path.join(db_root, 'db.sqlite')
-    conn = sqlite3.connect(db_file)
-    conn.row_factory = sqlite3.Row
-    return conn
+    c = sqlite3.connect(db_file)
+    c.row_factory = sqlite3.Row
+    return c
 
 
 def get_next_job():
     min_time = datetime.datetime.now() - datetime.timedelta(minutes=10)
     min_time_str = min_time.strftime('%Y-%m-%d %H:%M:%S')
-    return conn.execute(f'SELECT id, url FROM feed WHERE status is null AND created_at > {min_time_str} order by id')
+    sql = f'SELECT id, url FROM feed WHERE status is null AND created_at > "{min_time_str}" order by id limit 1'
+    result = conn.execute(sql)
+    if result is None:
+        return result
+    else:
+        return result.fetchone()
 
 
 if __name__ == "__main__":
     db_root = '/app/db'
     static_root = '/app/static'
-
     logger = logging.getLogger(__name__)
     args = parse_args()
 
@@ -181,5 +186,6 @@ if __name__ == "__main__":
                 fh.write("\n    </channel>\n</rss>")
                 status = 'SUCCESS'
 
-        conn.execute('UPDATE feed SET status = ?, file = ? WHERE id = ?', (status, xml_file, job['id']))
+        with conn:
+            conn.execute('UPDATE feed SET status = ?, uuid = ? WHERE id = ?', (status, xml_file, job['id']))
 
