@@ -6,3 +6,6 @@ CREATE TABLE IF NOT EXISTS "feed" (
   "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX feed_url ON feed(url);
+
+# test data
+# insert into feed(url) values('https://www.npr.org/rss/podcast.php?id=510289');

@@ -6,3 +6,7 @@ Visit a url history snapshot and output <item></item> content
   * `python3 snapshot_urls.py checkbot.io --from-date 20210101 --collapse timestamp:8 --collapse digest --uniques-only`
 * cd into backpod/ parent directory, python3 -m backpod.cli https://feeds.npr.org/510289/podcast.xml
     * `python3 -m backpod.cli https://www.npr.org/rss/podcast.php?id=510289 --follow-redirects --quiet >> money.xml`
+
+In Docker
+
+* `docker run --init -d --name backpod -v ~/.backpod/db:/app/db -v ~/.backpod/static:/app/static shijialee/backpod`
