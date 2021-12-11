@@ -155,7 +155,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(
         level=(logging.WARN if args.quiet else logging.INFO),
-        format="%(levelname)s:%(name)s: %(message)s"
+        format="%(asctime)s %(levelname)s:%(name)s: %(message)s"
     )
 
     session = Session(
@@ -182,10 +182,13 @@ if __name__ == "__main__":
         xml_file = str(uuid.uuid4())
         xml_file_path = os.path.join(static_root, xml_file)
         with open(xml_file_path, "w") as fh:
-            main(args, session, fh, first_request)
-            if close_tag:
-                fh.write("\n    </channel>\n</rss>")
-                status = 'SUCCESS'
+            try:
+                main(args, session, fh, first_request)
+                if close_tag:
+                    fh.write("\n    </channel>\n</rss>")
+                    status = 'SUCCESS'
+            except Exception as inst:
+                logger.error(inst)
 
         with conn:
             conn.execute('UPDATE feed SET status = ?, uuid = ? WHERE id = ?', (status, xml_file, job['id']))
