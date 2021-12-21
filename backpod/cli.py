@@ -130,7 +130,7 @@ def get_date(datetime_str):
 
 
 def get_db_connection():
-    db_file = os.path.join(db_root, 'db.sqlite')
+    db_file = os.path.join(db_root, 'backpod.sqlite')
     c = sqlite3.connect(db_file)
     c.row_factory = sqlite3.Row
     return c

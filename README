@@ -9,4 +9,7 @@ Visit a url history snapshot and output <item></item> content
 
 In Docker
 
-* `docker run --init -d --name backpod -v ~/.backpod/db:/app/db -v ~/.backpod/static:/app/static shijialee/backpod`
+* for dev
+  * `docker run --init -d --name backpod -v ~/.backpod/db:/app/db -v ~/.backpod/static:/app/static shijialee/backpod`
+* for prod
+  * `docker run --init -d --name backpod -v /var/local/app.podcastdrill.com/sqlite:/app/db -v /var/www/app.podcastdrill.com/public/static/backpod:/app/static shijialee/backpod`
