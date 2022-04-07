@@ -15,6 +15,10 @@ import os
 import uuid
 
 
+logger = logging.getLogger(__name__)
+static_root = os.environ.get('STATIC_ROOT', '/app/static')
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
 
@@ -46,69 +50,77 @@ def parse_args():
     return tmp_args
 
 
-def main(args, session, fh, first_request=False):
-    logger.info('fetching {0}'.format(args.url))
-    res = session.get(args.url)
+def main(args, session, fh):
+    first_request = True
 
-    if res.status_code != 200:
-        log_msg = 'exception: "{0}"'
-        logger.info(log_msg.format(
-            res.content.decode("utf-8").strip()
-        ))
-        return None
-    if 'text/xml' not in res.headers['content-type']:
-        return None
+    while True:
+        logger.info('fetching {0}'.format(args.url))
+        res = session.get(args.url)
 
-    parser = etree.XMLParser(strip_cdata=False)
-    root = etree.fromstring(res.content, parser=parser, base_url=res.url)
-    selector = Selector(root=root, type='xml')
-    if selector.xpath('//item').get() is None:
-        # no episode
-        return None
+        if res.status_code != 200:
+            log_msg = 'exception: "{0}"'
+            logger.info(log_msg.format(
+                res.content.decode("utf-8").strip()
+            ))
+            break
+        if 'text/xml' not in res.headers['content-type']:
+            break
 
-    # get episode
-    episode_count = len(selector.xpath('//item'))
-    first_pub_date = selector.xpath('//item')[-1].xpath('.//pubDate/text()').get()
-    last_pub_date = selector.xpath('//item')[0].xpath('.//pubDate/text()').get()
+        parser = etree.XMLParser(strip_cdata=False)
+        root = etree.fromstring(res.content, parser=parser, base_url=res.url)
+        selector = Selector(root=root, type='xml')
+        if selector.xpath('//item').get() is None:
+            # no episode
+            break
 
-    log_msg = 'show count "{0}", first pub date "{1}, last "{2}"'
-    logger.info(log_msg.format(episode_count, first_pub_date, last_pub_date))
+        # get episode
+        episode_count = len(selector.xpath('//item'))
+        first_pub_date = selector.xpath('//item')[-1].xpath('.//pubDate/text()').get()
+        last_pub_date = selector.xpath('//item')[0].xpath('.//pubDate/text()').get()
 
+        log_msg = 'show count "{0}", first pub date "{1}, last "{2}"'
+        logger.info(log_msg.format(episode_count, first_pub_date, last_pub_date))
+
+        if first_request:
+            # get anything before <item> - this is the podcast detail
+            index = res.text.find('<item>')
+            fh.write(res.text[0:index])
+            first_request = False
+
+        # need this line, otherwise namespaces are added to each <item>
+        selector.remove_namespaces()
+        items = selector.xpath('//item').getall()
+        fh.write("\n".join(items))
+
+        # get wayback url
+        dt = get_date(first_pub_date)
+        if dt is None:
+            break
+
+        previous_date_dt = dt.date() - datetime.timedelta(days=1)
+        one_year_before_dt = dt.date() - datetime.timedelta(days=365)
+        args.from_date = one_year_before_dt.strftime('%Y%m%d')
+        args.to_date = previous_date_dt.strftime('%Y%m%d')
+        args.limit = '-2'
+        args.uniques_only = True
+        # reset url to the original url so we get the wayback snapshot url
+        #   within the time range.
+        args.url = args.original_url
+        args.collapse = ['timestamp:8', 'digest']
+        logger.info('search wayback from {0} to {1}'.format(args.from_date, args.to_date))
+        urls = snapshot_urls(args, session)
+
+        if urls:
+            # we get wayback url and will extract feed later
+            args.url = urls[0]
+        else:
+            break
+
+    # if not first request, we got some podcast info to write.
     if first_request:
-        # get anything before <item>
-        index = res.text.find('<item>')
-        fh.write(res.text[0:index])
-        global close_tag
-        close_tag = True
-
-    # need this line, otherwise namespaces are added to each <item>
-    selector.remove_namespaces()
-    items = selector.xpath('//item').getall()
-    fh.write("\n".join(items))
-
-    # get wayback url
-    dt = get_date(first_pub_date)
-    if dt is None:
-        return
-
-    previous_date_dt = dt.date() - datetime.timedelta(days=1)
-    one_year_before_dt = dt.date() - datetime.timedelta(days=365)
-    args.from_date = one_year_before_dt.strftime('%Y%m%d')
-    args.to_date = previous_date_dt.strftime('%Y%m%d')
-    args.limit = '-2'
-    args.uniques_only = True
-    # reset to get the snapshot url for the original url
-    args.url = args.original_url
-    args.collapse = ['timestamp:8', 'digest']
-    logger.info('from {0} to {1}'.format(args.from_date, args.to_date))
-    urls = snapshot_urls(args, session)
-
-    if urls:
-        # we get wayback url here
-        args.url = urls[0]
-        main(args, session, fh)
+        return False
     else:
-        return
+        return True
 
 
 def get_date(datetime_str):
@@ -133,34 +145,9 @@ def get_date(datetime_str):
         return None
 
 
-def get_db_connection():
-    db_file = os.path.join(db_root, 'backpod.sqlite')
-    c = sqlite3.connect(db_file)
-    c.row_factory = sqlite3.Row
-    return c
-
-
-def get_next_job():
-    min_time = datetime.datetime.now() - datetime.timedelta(minutes=10)
-    min_time_str = min_time.strftime('%Y-%m-%d %H:%M:%S')
-    sql = f'SELECT id, url FROM feed WHERE status is null AND created_at > "{min_time_str}" order by id limit 1'
-    result = conn.execute(sql)
-    if result is None:
-        return result
-    else:
-        return result.fetchone()
-
-
-if __name__ == "__main__":
-    db_root = '/app/db'
-    static_root = '/app/static'
-    logger = logging.getLogger(__name__)
-    args = parse_args()
-
-    logging.basicConfig(
-        level=(logging.WARN if args.quiet else logging.INFO),
-        format="%(asctime)s %(levelname)s:%(name)s: %(message)s"
-    )
+def process(args):
+    status = False
+    args.original_url = args.url
 
     session = Session(
         user_agent=args.user_agent,
@@ -168,31 +155,33 @@ if __name__ == "__main__":
         follow_redirects=args.follow_redirects,
     )
 
-    conn = get_db_connection()
+    logging.basicConfig(
+        level=(logging.WARN if args.quiet else logging.INFO),
+        datefmt='%Y-%m-%d %H:%M:%S',
+        format="%(asctime)s %(levelname)s:%(name)s: %(message)s"
+    )
 
-    while True:
-        status = 'FAIL'
-        close_tag = False
-        first_request = True
-        # get job
-        job = get_next_job()
-        if job is None:
-            time.sleep(5)
-            continue
+    xml_file = str(uuid.uuid4())
+    xml_file_path = os.path.join(static_root, xml_file)
+    with open(xml_file_path, "w") as fh:
+        try:
+            success = main(args, session, fh)
+            if success:
+                fh.write("\n    </channel>\n</rss>")
+                status = success
+        except Exception as inst:
+            logger.error(inst)
 
-        args.url = job['url']
-        args.original_url = job['url']
+    return status, xml_file
 
-        xml_file = str(uuid.uuid4())
-        xml_file_path = os.path.join(static_root, xml_file)
-        with open(xml_file_path, "w") as fh:
-            try:
-                main(args, session, fh, first_request)
-                if close_tag:
-                    fh.write("\n    </channel>\n</rss>")
-                    status = 'SUCCESS'
-            except Exception as inst:
-                logger.error(inst)
 
-        with conn:
-            conn.execute('UPDATE feed SET status = ?, uuid = ? WHERE id = ?', (status, xml_file, job['id']))
+if __name__ == "__main__":
+    args = parse_args()
+
+    args.url = 'https://www.npr.org/rss/podcast.php?id=510289'
+
+    status, xml_file = process(args)
+    if status:
+        logger.info(f'feed is saved as {xml_file}')
+    else:
+        logger.info(f'fetch feed failed')
