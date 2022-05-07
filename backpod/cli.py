@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import time
 
 from .session import Session
 from .settings import DEFAULT_USER_AGENT
@@ -10,7 +9,6 @@ import datetime
 from parsel import Selector
 import lxml.etree as etree
 from dateutil.parser import parse
-import sqlite3
 import os
 import uuid
 
@@ -116,7 +114,7 @@ def main(args, session, fh):
         else:
             break
 
-    # if not first request, we got some podcast info to write.
+    # if it is still first request(no episodes or fetch failed), that means we got nothing
     if first_request:
         return False
     else:
