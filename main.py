@@ -36,7 +36,7 @@ def index():
             print(f"error: {e}")
             return f"Bad Request: {msg}", 400
 
-        # Validate the message is a Cloud Storage event.
+        # Validate the message
         if not data["url"] or not data["id"]:
             msg = (
                 "Invalid Cloud Storage notification: "
@@ -49,11 +49,14 @@ def index():
         args.url = data['url']
         args.id = data['id']
         try:
-            cli.process(args)
-            return ("", 204)
+            status, xml_file = cli.process(args)
+            if status:
+                return ("", 204)
+            else:
+                return ("got nothing", 204)
 
         except Exception as e:
             print(f"error: {e}")
-            return ("", 500)
+            return ("fetch failed", 500)
 
-    return ("", 500)
+    return ("bad request", 500)

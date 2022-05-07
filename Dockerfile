@@ -9,4 +9,4 @@ ENV PYTHONUNBUFFERED="true" \
 
 COPY . .
 
-CMD ["python3", "-m", "backpod.cli", "--quiet"]
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 main:app
