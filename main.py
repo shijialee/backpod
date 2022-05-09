@@ -9,9 +9,6 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def index():
-    class Args:
-        pass
-
     envelope = request.get_json()
     if not envelope:
         msg = "no Pub/Sub message received"
@@ -46,11 +43,8 @@ def index():
             print(f"error: {msg}")
             return f"Bad Request: {msg}", 400
 
-        args = Args()
-        args.url = data['url']
-        args.id = data['id']
         try:
-            status, filename, filepath = cli.process(args)
+            status, filename, filepath = cli.process(data['url'])
             if status:
                 # upload file
                 print(f'status {status} filename {filename} filepath {filepath}')
