@@ -5,7 +5,7 @@ COPY requirements.txt .
 RUN pip install --no-warn-script-location --user -r requirements.txt
 
 ENV PYTHONUNBUFFERED="true" \
-    PATH=$PATH:/root/.local \
+    PATH=$PATH:/root/.local/bin \
     FEED_BUCKET_NAME=us-backpod-feed
 
 COPY . .
