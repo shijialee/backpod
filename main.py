@@ -53,7 +53,8 @@ def index():
             status, filename, filepath = cli.process(args)
             if status:
                 # upload file
-                upload(filepath, filename)
+                print(f'status {status} filename {filename} filepath {filepath}')
+                # upload(filepath, filename)
                 # update status
                 # update(record)
                 return ("", 204)
