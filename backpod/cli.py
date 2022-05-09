@@ -144,7 +144,7 @@ def get_date(datetime_str):
 
 
 def process(args):
-    status = False
+    fetch_status = False
     args.original_url = args.url
 
     session = Session(
@@ -159,18 +159,18 @@ def process(args):
         format="%(asctime)s %(levelname)s:%(name)s: %(message)s"
     )
 
-    xml_file = str(uuid.uuid4())
-    xml_file_path = os.path.join(static_root, xml_file)
+    xml_filename = str(uuid.uuid4())
+    xml_file_path = os.path.join(static_root, xml_filename)
     with open(xml_file_path, "w") as fh:
         try:
             success = main(args, session, fh)
             if success:
                 fh.write("\n    </channel>\n</rss>")
-                status = success
+                fetch_status = success
         except Exception as inst:
             logger.error(inst)
 
-    return status, xml_file
+    return fetch_status, xml_filename, xml_file_path
 
 
 if __name__ == "__main__":
@@ -178,8 +178,8 @@ if __name__ == "__main__":
 
     args.url = 'https://www.npr.org/rss/podcast.php?id=510289'
 
-    status, xml_file = process(args)
+    status, filename, _ = process(args)
     if status:
-        logger.info(f'feed is saved as {xml_file}')
+        logger.info(f'feed is saved as {filename}')
     else:
         logger.info(f'fetch feed failed')

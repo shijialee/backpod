@@ -2,6 +2,7 @@ import base64
 import json
 from flask import Flask, request
 from backpod import cli
+from upload import upload
 
 app = Flask(__name__)
 
@@ -49,8 +50,12 @@ def index():
         args.url = data['url']
         args.id = data['id']
         try:
-            status, xml_file = cli.process(args)
+            status, filename, filepath = cli.process(args)
             if status:
+                # upload file
+                upload(filepath, filename)
+                # update status
+                # update(record)
                 return ("", 204)
             else:
                 return ("got nothing", 204)
