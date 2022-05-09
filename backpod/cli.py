@@ -143,7 +143,10 @@ def get_date(datetime_str):
         return None
 
 
-def process(args):
+def process(url):
+    args = parse_args()
+    args.url = url
+
     fetch_status = False
     args.original_url = args.url
 
@@ -174,11 +177,9 @@ def process(args):
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    feed_url = 'https://www.npr.org/rss/podcast.php?id=510289'
 
-    args.url = 'https://www.npr.org/rss/podcast.php?id=510289'
-
-    status, filename, _ = process(args)
+    status, filename, _ = process(feed_url)
     if status:
         logger.info(f'feed is saved as {filename}')
     else:
