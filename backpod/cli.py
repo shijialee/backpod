@@ -143,10 +143,7 @@ def get_date(datetime_str):
         return None
 
 
-def process(url):
-    args = parse_args()
-    args.url = url
-
+def process(args):
     fetch_status = False
     args.original_url = args.url
 
@@ -176,10 +173,24 @@ def process(url):
     return fetch_status, xml_filename, xml_file_path
 
 
-if __name__ == "__main__":
-    feed_url = 'https://www.npr.org/rss/podcast.php?id=510289'
+def web_process(url):
+    class Args:
+        pass
 
-    status, filename, _ = process(feed_url)
+    web_args = Args()
+    web_args.url = url
+    web_args.quiet = False
+    web_args.max_retries = 3
+    web_args.follow_redirects = True
+    web_args.user_agent = DEFAULT_USER_AGENT
+    return process(web_args)
+
+
+if __name__ == "__main__":
+    cli_args = parse_args()
+    cli_args.url = 'https://www.npr.org/rss/podcast.php?id=510289'
+
+    status, filename, _ = process(cli_args)
     if status:
         logger.info(f'feed is saved as {filename}')
     else:

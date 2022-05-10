@@ -7,6 +7,7 @@ import logging
 
 ARCHIVE_TEMPLATE = "https://web.archive.org/web/{timestamp}/{url}"
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
 
