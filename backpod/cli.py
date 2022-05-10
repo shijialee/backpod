@@ -3,7 +3,6 @@
 from .session import Session
 from .settings import DEFAULT_USER_AGENT
 from .snapshot_urls import snapshot_urls
-import argparse
 import logging
 import datetime
 from parsel import Selector
@@ -189,6 +188,9 @@ def web_process(url):
 
 
 if __name__ == "__main__":
+    print(f"===debug: in cli main")
+    import argparse
+
     cli_args = parse_args()
     cli_args.url = 'https://www.npr.org/rss/podcast.php?id=510289'
 

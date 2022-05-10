@@ -2,7 +2,6 @@
 from .session import Session
 from .cdx import search
 from .settings import DEFAULT_USER_AGENT, DEFAULT_ROOT
-import argparse
 import logging
 
 ARCHIVE_TEMPLATE = "https://web.archive.org/web/{timestamp}/{url}"
@@ -79,6 +78,8 @@ def snapshot_urls(args, session = None):
 
 
 if __name__ == "__main__":
+    import argparse
+
     args = parse_args()
 
     logging.basicConfig(
