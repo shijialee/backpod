@@ -9,9 +9,6 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST"])
 def index():
-    upload.upload_blob_from_memory()
-    return ("got nothing", 204)
-
     envelope = request.get_json()
     if not envelope:
         msg = "no Pub/Sub message received"
@@ -54,7 +51,7 @@ def index():
                 upload.upload(filepath, filename)
                 # update status
                 # update(record)
-                return ("", 204)
+                return ("success", 204)
             else:
                 return ("got nothing", 204)
 
