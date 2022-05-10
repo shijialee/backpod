@@ -23,7 +23,6 @@ def index():
     # Decode the Pub/Sub message.
     pubsub_message = envelope["message"]
 
-    print(f"===debug {pubsub_message}")
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         try:
             data = json.loads(base64.b64decode(pubsub_message["data"]).decode())
@@ -45,7 +44,7 @@ def index():
             return f"Bad Request: {msg}", 400
 
         try:
-            status, filename, filepath = cli.process(data['url'])
+            status, filename, filepath = cli.web_process(data['url'])
             if status:
                 # upload file
                 print(f'status {status} filename {filename} filepath {filepath}')
