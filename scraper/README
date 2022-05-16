@@ -13,3 +13,7 @@ In Docker
   * `docker run --init -d --name backpod -v ~/.backpod/db:/app/db -v ~/.backpod/static:/app/static shijialee/backpod`
 * for prod
   * `docker run --init -d --name backpod -v /var/local/app.podcastdrill.com/sqlite:/app/db -v /var/www/app.podcastdrill.com/public/static/backpod:/app/static shijialee/backpod`
+
+Test in GCP
+
+* test by publishing message {"id": 4, "url": "https://www.npr.org/rss/podcast.php?id=510289"}
