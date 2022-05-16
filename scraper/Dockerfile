@@ -5,7 +5,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONUNBUFFERED="true" \
-    FEED_BUCKET_NAME=us-backpod-feed
+    FEED_BUCKET_NAME=feeds.podcastdrill.com
 
 COPY . .
 
