@@ -1,0 +1,85 @@
+from flask import Flask, request
+from google.cloud import firestore, pubsub_v1
+import os
+import json
+from concurrent import futures
+
+app = Flask(__name__)
+
+db = firestore.Client()
+feeds = db.collection('feeds')
+
+@app.route('/feeds', methods=['POST'])
+def create_feed():
+    envelope = request.get_json()
+    if not envelope:
+        pass
+
+    url = envelope['url'].lower()
+    feeds_ref = db.collection('feeds')
+    results = list(
+        feeds_ref.where('url', '==', url).order_by('created_at').limit(1).stream()
+    )
+
+    if len(results) == 0:
+        data = {
+            'url': url,
+            'filename': None,
+            'status': 'PENDING',
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'updated_at': firestore.SERVER_TIMESTAMP,
+        }
+        new_feed_ref = feeds_ref.document()
+        new_feed_ref.set(data)
+
+        # publish message {id, url}
+        msg = {'id': new_feed_ref.id, 'url': url}
+        print(f'publish message {msg}')
+        # _publish_msg(msg)
+
+        # get scraper status by visiting backpod.podcastdrill.com/ID
+        return {'id': new_feed_ref.id}
+
+    feed = results[0]
+    print(f'==== {feed.id}')
+    if feed.get('filename'):
+        return {'id': feed.id}
+
+    return 'failed to get feed', 400
+
+
+def _publish_msg(data):
+    def callback(future):
+        try:
+            print(future.result(timeout=30))
+        except futures.TimeoutError:
+            print(f"Publishing {data} timed out.")
+
+    publisher = pubsub_v1.PublisherClient()
+    project_id = os.getenv('PROJECT_ID')
+    topic_id = os.getenv('TOPIC_ID')
+    topic_path = publisher.topic_path(project_id, topic_id)
+    future = publisher.publish(topic_path, json.dumps(data).encode("utf-8"))
+    # Non-blocking. Publish failures are handled in the callback function.
+    future.add_done_callback(callback)
+
+
+@app.route('/feeds/<id>', methods=['GET'])
+def get_feed(id):
+    # https://github.com/googleapis/python-firestore/blob/3ec13dac8e/google/cloud/firestore_v1/base_collection.py#L479
+    if len(id) != 20:
+        return 'invalid feed', 400
+
+    doc_ref = db.collection('feeds').document(id)
+    doc = doc_ref.get()
+    if doc.exists:
+        if doc.get('filename'):
+            return {'file': doc.get('filename'), 'url': doc.get('url')}
+        else:
+            return 'failed to get feed', 400
+    else:
+        return '', 404
+
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=8080)
