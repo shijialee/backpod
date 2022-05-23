@@ -4,7 +4,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-ENV PYTHONUNBUFFERED="true"
+ENV PYTHONUNBUFFERED="true" \
+    PROJECT_ID=backpod \
+    TOPIC_ID=rss-feed
 
 COPY . .
 
