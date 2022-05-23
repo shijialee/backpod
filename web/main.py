@@ -64,7 +64,7 @@ def _publish_msg(data):
     future.add_done_callback(callback)
 
 
-@app.route('/feeds/<id>', methods=['GET'])
+@app.route('/feeds/<feed_id>', methods=['GET'])
 def get_feed(feed_id):
     # https://github.com/googleapis/python-firestore/blob/3ec13dac8e/google/cloud/firestore_v1/base_collection.py#L479
     # id is length of 20 based on doc
