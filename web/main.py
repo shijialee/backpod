@@ -9,6 +9,7 @@ app = Flask(__name__)
 db = firestore.Client()
 feeds = db.collection('feeds')
 
+
 @app.route('/feeds', methods=['POST'])
 def create_feed():
     envelope = request.get_json()
@@ -41,7 +42,6 @@ def create_feed():
         return {'id': new_feed_ref.id}
 
     feed = results[0]
-    print(f'==== {feed.id}')
     if feed.get('filename'):
         return {'id': feed.id}
 
@@ -65,18 +65,20 @@ def _publish_msg(data):
 
 
 @app.route('/feeds/<id>', methods=['GET'])
-def get_feed(id):
+def get_feed(feed_id):
     # https://github.com/googleapis/python-firestore/blob/3ec13dac8e/google/cloud/firestore_v1/base_collection.py#L479
-    if len(id) != 20:
+    # id is length of 20 based on doc
+    if len(feed_id) != 20:
         return 'invalid feed', 400
 
-    doc_ref = db.collection('feeds').document(id)
+    doc_ref = db.collection('feeds').document(feed_id)
     doc = doc_ref.get()
     if doc.exists:
+        if doc.get('status') == 'PENDING':
+            return 'still working on it', 202
         if doc.get('filename'):
             return {'file': doc.get('filename'), 'url': doc.get('url')}
-        else:
-            return 'failed to get feed', 400
+        return 'failed to get feed', 422
     else:
         return '', 404
 

@@ -3,6 +3,7 @@ import json
 from flask import Flask, request
 from backpod import cli
 import upload
+import database
 
 app = Flask(__name__)
 
@@ -49,14 +50,14 @@ def index():
                 # upload file
                 print(f'status {status} filename {filename} filepath {filepath}')
                 upload.upload(filepath, filename)
-                # update status
-                # update(record)
-                return ("success", 204)
+                database.success(data['id'], filename)
+                return "success", 204
             else:
-                return ("got nothing", 204)
+                database.fail(data['id'])
+                return "got nothing", 204
 
         except Exception as e:
             print(f"error: {e}")
-            return ("fetch failed", 500)
+            return "fetch failed", 500
 
-    return ("bad request", 500)
+    return "bad request", 500
