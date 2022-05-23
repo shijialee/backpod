@@ -50,7 +50,7 @@ def index():
                 # upload file
                 print(f'upload filename {filename} filepath {filepath}')
                 upload.upload(filepath, filename)
-                print(f'update db with {data["id"]} {filename}')
+                print(f'update db {data["id"]} {filename}')
                 database.success(data['id'], filename)
                 return "success", 204
             else:
