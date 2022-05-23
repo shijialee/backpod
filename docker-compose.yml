@@ -16,12 +16,9 @@ services:
     ports:
       - "8888:80"
     env_file:
-      - ".env"
+      - ".env.web"
     volumes:
       - "./web:/app"
-    environment:
-      - PORT=80
-      - FIRESTORE_EMULATOR_HOST=firestore:80
     networks:
       - backpod-network
 
