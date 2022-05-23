@@ -58,7 +58,7 @@ def _publish_msg(data):
     project_id = os.getenv('PROJECT_ID')
     topic_id = os.getenv('TOPIC_ID')
     topic_path = publisher.topic_path(project_id, topic_id)
-    print(f'...publish message {data} to {project_id}/{topic_id}')
+    print(f'publish message {data} to {project_id}/{topic_id}')
     future = publisher.publish(topic_path, json.dumps(data).encode("utf-8"))
     # Non-blocking. Publish failures are handled in the callback function.
     future.add_done_callback(callback)

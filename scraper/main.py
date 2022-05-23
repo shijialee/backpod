@@ -48,8 +48,9 @@ def index():
             status, filename, filepath = cli.web_process(data['url'])
             if status:
                 # upload file
-                print(f'status {status} filename {filename} filepath {filepath}')
+                print(f'upload filename {filename} filepath {filepath}')
                 upload.upload(filepath, filename)
+                print(f'update db with {data["id"]} {filename}')
                 database.success(data['id'], filename)
                 return "success", 204
             else:
