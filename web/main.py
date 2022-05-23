@@ -36,7 +36,7 @@ def create_feed():
         # publish message {id, url}
         msg = {'id': new_feed_ref.id, 'url': url}
         print(f'publish message {msg}')
-        # _publish_msg(msg)
+        _publish_msg(msg)
 
         # get scraper status by visiting backpod.podcastdrill.com/ID
         return {'id': new_feed_ref.id}
