@@ -173,6 +173,11 @@ def process(args):
     return fetch_status, xml_filename, xml_file_path
 
 
+def cleanup(file):
+    file_path = os.path.join(static_root, file)
+    os.remove(file_path)
+
+
 def web_process(url):
     class Args:
         pass
