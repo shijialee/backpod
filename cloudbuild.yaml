@@ -1,0 +1,27 @@
+ steps:
+ # Deploy container image to Cloud Run
+ - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+   entrypoint: gcloud
+   args:
+   - 'run'
+   - 'deploy'
+   - 'backpod-web'
+   - '--image'
+   - 'gcr.io/$PROJECT_ID/backpod-web:$COMMIT_SHA'
+   - '--region'
+   - 'us-west1'
+   - '--allow-unauthenticated'
+ - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+   entrypoint: gcloud
+   args:
+   - 'run'
+   - 'deploy'
+   - 'backpod-scraper'
+   - '--image'
+   - 'gcr.io/$PROJECT_ID/backpod-scraper:$COMMIT_SHA'
+   - '--region'
+   - 'us-west1'
+   - '--no-allow-unauthenticated'
+ images:
+ - 'gcr.io/$PROJECT_ID/backpod-web:$COMMIT_SHA'
+ - 'gcr.io/$PROJECT_ID/backpod-scraper:$COMMIT_SHA'
