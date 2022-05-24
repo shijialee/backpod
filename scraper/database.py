@@ -7,7 +7,12 @@ def success(doc_id, filename):
     doc_ref = db.collection('feeds').document(doc_id)
     doc = doc_ref.get()
     if doc.exists:
-        doc_ref.update({'filename': filename, 'status': 'SUCCESS'})
+        data = {
+            'filename': filename,
+            'status': 'SUCCESS',
+            'updated_at': firestore.SERVER_TIMESTAMP,
+        }
+        doc_ref.update(data)
     else:
         raise RuntimeError(f'id: {doc_id} is not found')
 
