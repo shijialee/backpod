@@ -5,12 +5,6 @@
  # Push the container image to Container Registry
  - name: 'gcr.io/cloud-builders/docker'
    args: ['push', 'gcr.io/$PROJECT_ID/backpod-web:$COMMIT_SHA']
- # Build the container image
- - name: 'gcr.io/cloud-builders/docker'
-   args: ['build', '-t', 'gcr.io/$PROJECT_ID/backpod-scraper:$COMMIT_SHA', 'scraper/']
- # Push the container image to Container Registry
- - name: 'gcr.io/cloud-builders/docker'
-   args: ['push', 'gcr.io/$PROJECT_ID/backpod-scraper:$COMMIT_SHA']
  # Deploy container image to Cloud Run
  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
    entrypoint: gcloud
@@ -23,17 +17,5 @@
    - '--region'
    - 'us-west1'
    - '--allow-unauthenticated'
- - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-   entrypoint: gcloud
-   args:
-   - 'run'
-   - 'deploy'
-   - 'backpod-scraper'
-   - '--image'
-   - 'gcr.io/$PROJECT_ID/backpod-scraper:$COMMIT_SHA'
-   - '--region'
-   - 'us-west1'
-   - '--no-allow-unauthenticated'
  images:
  - 'gcr.io/$PROJECT_ID/backpod-web:$COMMIT_SHA'
- - 'gcr.io/$PROJECT_ID/backpod-scraper:$COMMIT_SHA'
