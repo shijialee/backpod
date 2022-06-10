@@ -39,12 +39,12 @@ def create_feed():
 
         # get scraper status by visiting backpod.podcastdrill.com/ID
         return {'id': new_feed_ref.id}
-
-    feed = results[0]
-    if feed.get('filename'):
+    else:
+        feed = results[0]
         return {'id': feed.id}
 
-    return 'failed to get feed', 400
+
+def _validate_url(url):
 
 
 def _publish_msg(data):
