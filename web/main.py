@@ -3,6 +3,7 @@ from google.cloud import firestore, pubsub_v1
 import os
 import json
 from concurrent import futures
+import requests
 
 app = Flask(__name__)
 
@@ -23,6 +24,7 @@ def create_feed():
     )
 
     if len(results) == 0:
+        _validate_url(url)
         data = {
             'url': url,
             'filename': None,
@@ -45,6 +47,14 @@ def create_feed():
 
 
 def _validate_url(url):
+    try:
+        r = requests.head(url, timeout=5)
+        if r.status_code != 200:
+            return 'failed to get url', 400
+        if 'text/xml' not in r.headers['Content-Type']:
+            return 'content is not in xml format', 400
+    except requests.exceptions.RequestException:
+        return 'request failed', 400
 
 
 def _publish_msg(data):
