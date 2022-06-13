@@ -51,15 +51,21 @@ def index():
                 print(f'upload filename {filename} filepath {filepath}')
                 upload.upload(filepath, filename)
                 cli.cleanup(filename)
-                print(f'update db {data["id"]} {filename}')
-                database.success(data['id'], filename)
-                return "success", 204
             else:
                 database.fail(data['id'])
                 return "got nothing", 204
-
         except Exception as e:
             print(f"error: {e}")
             return "fetch failed", 500
+
+        # update db in its own try/catch to avoid db failure causes repeated scrape and upload
+        try:
+            print(f'update db {data["id"]} {filename}')
+            # XXX use pubsub notification for cloud storage to update DB
+            database.success(data['id'], filename)
+            return "success", 204
+        except Exception as e:
+            print(f"error: {e}")
+            return "db update failed and no retry attempted", 202
 
     return "bad request", 500

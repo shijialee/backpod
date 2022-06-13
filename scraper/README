@@ -1,5 +1,9 @@
 ## Intro
 
+To get a historical feed content from a podcast show, first visit the current podcast feed to get the oldest show publish date. Then, fetch the archived feed before the publish date from archive.org.
+
+This requires the podcast has a valid feed first.
+
 Visit a url history snapshot and output <item></item> content
 
 * get checkbot.io daily snapshot url from 20210101, trying to exclude duplicate. `--digest` will exclude adjacent dupe. `--uniques-only` will exclude based on non-adjacent dupe digest.

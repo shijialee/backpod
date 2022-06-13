@@ -62,6 +62,7 @@ def main(args, session, fh):
             ))
             break
         if 'text/xml' not in res.headers['content-type']:
+            logger.info('exception: not text/xml content type')
             break
 
         parser = etree.XMLParser(strip_cdata=False)
