@@ -6,7 +6,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONUNBUFFERED="true" \
     PROJECT_ID=backpod \
-    TOPIC_ID=rss-feed
+    TOPIC_ID=rss-feed \
+    ALLOWED_ORIGIN=https://backpod.podcastdrill.com
 
 COPY . .
 
