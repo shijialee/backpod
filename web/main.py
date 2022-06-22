@@ -7,7 +7,7 @@ import requests
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, origins=[os.getenv('allowed_origin')])
+CORS(app, origins=[os.getenv('ALLOWED_ORIGIN')])
 
 db = firestore.Client()
 feeds = db.collection('feeds')
