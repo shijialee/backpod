@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 from flask import Flask, request
 from backpod import cli
 import upload
@@ -50,7 +51,8 @@ def index():
                 # upload file
                 print(f'upload filename {filename} filepath {filepath}')
                 upload.upload(filepath, filename)
-                cli.cleanup(filename)
+                # clean up per cloud run recommendation
+                os.remove(filepath)
             else:
                 database.fail(data['id'])
                 return "got nothing", 204
