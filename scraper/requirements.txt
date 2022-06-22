@@ -19,5 +19,5 @@ six==1.16.0
 urllib3==1.26.7
 w3lib==1.22.0
 google-cloud-storage==2.3.0
-google-cloud-firestore==2.4.0
+google-cloud-firestore==2.5.3
 
