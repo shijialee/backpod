@@ -90,7 +90,9 @@ def get_feed(feed_id):
             return '<p>still working on it. please refresh in few minutes.</p>'
             # return 'still working on it', 102
         if doc.get('filename'):
-            msg = '<p>Add {0} to your podcast feed to listen</p>'.format(doc.get('filename'))
+            msg = '<p>Add {domain}/{filename} to your podcast feed to listen</p>'.format(
+                domain=os.getenv('FEED_DOMAIN'),
+                filename=doc.get('filename'))
             return msg
             # return {'file': doc.get('filename'), 'url': doc.get('url')}
         return 'failed to get feed', 422

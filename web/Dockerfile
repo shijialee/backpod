@@ -8,6 +8,7 @@ ENV PYTHONUNBUFFERED="true" \
     PROJECT_ID=backpod \
     TOPIC_ID=rss-feed \
     ALLOWED_ORIGIN=https://backpod.podcastdrill.com
+    FEED_DOMAIN=https://feeds.podcastdrill.com
 
 COPY . .
 
