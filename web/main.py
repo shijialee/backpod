@@ -87,9 +87,12 @@ def get_feed(feed_id):
     doc = doc_ref.get()
     if doc.exists:
         if doc.get('status') == 'PENDING':
-            return 'still working on it', 202
+            return '<p>still working on it. please refresh in few minutes.</p>'
+            # return 'still working on it', 102
         if doc.get('filename'):
-            return {'file': doc.get('filename'), 'url': doc.get('url')}
+            msg = '<p>Add {0} to your podcast feed to listen</p>'.format(doc.get('filename'))
+            return msg
+            # return {'file': doc.get('filename'), 'url': doc.get('url')}
         return 'failed to get feed', 422
     else:
         return '', 404
