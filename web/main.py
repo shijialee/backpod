@@ -52,7 +52,7 @@ def _validate_url(url):
     try:
         r = requests.head(url, timeout=5)
         if r.status_code != 200:
-            return 'failed to get url', 400
+            return {'message': 'failed to get url'}, 400
         if 'text/xml' not in r.headers['Content-Type']:
             return 'content is not in xml format', 400
     except requests.exceptions.RequestException:
@@ -81,23 +81,18 @@ def get_feed(feed_id):
     # https://github.com/googleapis/python-firestore/blob/3ec13dac8e/google/cloud/firestore_v1/base_collection.py#L479
     # id is length of 20 based on doc
     if len(feed_id) != 20:
-        return 'invalid feed', 400
+        return {'message': 'invalid feed'}, 400
 
     doc_ref = db.collection('feeds').document(feed_id)
     doc = doc_ref.get()
     if doc.exists:
         if doc.get('status') == 'PENDING':
-            return '<p>still working on it. please refresh in few minutes.</p>'
-            # return 'still working on it', 102
+            return {'message': 'still working on it'}, 402
         if doc.get('filename'):
-            msg = '<p>Add {domain}/{filename} to your podcast feed to listen</p>'.format(
-                domain=os.getenv('FEED_DOMAIN'),
-                filename=doc.get('filename'))
-            return msg
-            # return {'file': doc.get('filename'), 'url': doc.get('url')}
-        return 'failed to get feed', 422
+            return {'file': doc.get('filename'), 'url': doc.get('url')}
+        return {'message': 'failed to get feed'}, 422
     else:
-        return '', 404
+        return {'message': 'feed not found'}, 404
 
 
 if __name__ == '__main__':
