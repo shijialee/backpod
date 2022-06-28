@@ -27,7 +27,7 @@ def create_feed():
 
     if len(results) == 0:
         try:
-            r = requests.head(url, timeout=5)
+            r = requests.head(url, timeout=5, allow_redirects=True)
             if r.status_code != 200:
                 return {'message': 'failed to get url'}, 400
             if 'text/xml' not in r.headers['Content-Type']:
