@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get historical podcast feeds - Backpod</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body>
+<script src="app.js"></script>
+<div class="mx-auto" style="max-width: 40rem">
+  <h1 class="display-4 mt-5">Listen to missing episodes for your favoriate podcasts</h1>
+  <p class="lead">Podcast feed usually doesn't include all past episodes. Backpod tries to build the past episode feed for you.</p>
+
+  <div class="container pt-5">
+    <div class="row">
+      <div class="col-md-4">
+        <img src="https://media.npr.org/assets/img/2018/08/02/npr_planetmoney_podcasttile_sq-00e194ecb0c07c960d91f933a862eff0a85534e4-s400-c85.webp" class="d-block w-75 rounded" alt="Planet Money">
+      </div>
+      <div class="col-md-4">
+        <img src="https://media.npr.org/assets/img/2019/09/19/shortwave-tile_final2_sq-266c8cc0cd2cb3e6213b36cbd0009cbd3331a990.png?s=1400" class="d-block w-75 rounded" alt="NPR Short Wave">
+      </div>
+      <div class="col-md-4">
+        <img src="https://media.npr.org/assets/img/2018/08/03/npr_freshair_podcasttile_sq-bb34139df91f7a48120ddce9865817ea11baaf32.jpg?s=400" class="d-block w-75 rounded" alt="Fresh Air">
+      </div>
+    </div>
+
+    <div class="row text-muted">
+      <div class="col-md-4">
+        <p class="mt-2">Episodes in feed: 357
+        Past Episodes: 1539 <a href="https://feeds.podcastdrill.com/b1081253-7a1d-4b51-b248-69a705fce9ed">feed</a></p>
+      </div>
+      <div class="col-md-4">
+        <p class="mt-2">Episodes in feed: 104
+        Past Episodes: 1200 <a href="https://feeds.podcastdrill.com/5af310a6-140f-47ae-89fb-73397947b4c9">feed</a></p>
+      </div>
+      <div class="col-md-4">
+        <p class="mt-2">Episodes in feed: 60
+        Past Episodes: 1200 <a href="https://feeds.podcastdrill.com/5f3b2f65-6fe6-41ff-a40a-b0237626eaff">feed</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5">
+  <h5>How to use it?</h5>
+  <p>Enter a feed url like <a href="https://www.npr.org/rss/podcast.php?id=510289">this one</a> and Backpod crawls it's current and historical content. If all goes well, it builds a new feed with all historical episodes then you can add it in your podcast app.</p>
+  </div>
+
+  <div class="mt-5">
+    <label for="feedUrl" class="form-label">Feed URL</label>
+    <input type="text" id="feedUrl" class="form-control" aria-describedby="feedUrlHelperBlock">
+    <div id="feedUrlHelpBlock" class="form-text"></div>
+    <button class="btn btn-primary mb-3 mt-2" id="feedUrlButton">Build Feed</button>
+  </div>
+
+</div>
+
+  <!-- JavaScript Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+</body>
+</html>

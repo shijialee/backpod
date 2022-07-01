@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get historical podcast feeds - Backpod</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body>
+
+<script>
+window.onload = function() {
+  let errorMsg = "Er, We can't find that";
+  let params = new URLSearchParams(document.location.search)
+  let feedId = params.get('id');
+  fetch('https://backpod-web-5nkbg7zlqa-uw.a.run.app/feeds/' + feedId , {
+    method: 'GET',
+    mode: 'cors',
+  })
+  .then(r => {
+    if (!r.ok) {
+      if (r.headers.get('content-type')?.includes('application/json')) {
+        return r.json().then(data => {throw data});
+      }
+	  throw new Error(errorMsg);
+    }
+    return r.json();
+  })
+  .then(data => {
+    let feedUrl = document.getElementById('feedUrl');
+    feedUrl.textContent = 'https://feeds.podcastdrill.com/' + data.file;
+    feedUrl.style.visibility = 'visible';
+  })
+  .catch(error => {
+    console.log(error);
+    let alert = document.getElementsByClassName('alert')[0];
+    alert.textContent = error.message ?? "Er, We can't find that";
+    alert.style.display = '';
+  });
+};
+</script>
+
+<div class="mx-auto" style="max-width: 60rem">
+  <p class="alert alert-warning mt-5" role="alert" style="display: none"></p>
+  <p class="display-4 mt-5">If all goes well, You will see a url then add it to your podcast app.</p>
+  <p class="lead" id='feedUrl'></p>
+</div>
+</body>
