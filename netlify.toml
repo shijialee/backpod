@@ -1,0 +1,4 @@
+[build]
+# Directory to change to before starting a build.
+# If not set, defaults to the root directory.
+base = 'static/'
