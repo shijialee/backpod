@@ -83,7 +83,7 @@ def get_feed(feed_id):
     doc = doc_ref.get()
     if doc.exists:
         if doc.get('status') == 'PENDING':
-            return {'message': 'still working on it'}, 402
+            return {'message': 'Still working on it. Please refresh in few minutes.'}, 402
         if doc.get('filename'):
             return {'file': doc.get('filename'), 'url': doc.get('url')}
         return {'message': 'failed to get feed'}, 422
