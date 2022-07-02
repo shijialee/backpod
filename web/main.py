@@ -30,7 +30,7 @@ def create_feed():
             r = requests.head(url, timeout=5, allow_redirects=True)
             if r.status_code != 200:
                 return {'message': 'failed to get url'}, 400
-            if 'text/xml' not in r.headers['Content-Type']:
+            if not _valid_content_type(r.headers['Content-Type']):
                 return {'message': 'content is not in xml format'}, 400
         except requests.exceptions.RequestException:
             return {'message': 'request failed'}, 400
@@ -53,6 +53,20 @@ def create_feed():
     else:
         feed = results[0]
         return {'id': feed.id}
+
+
+def _valid_content_type(header_content_type):
+    content_types = (
+        'application/rss+xml',
+        'application/rdf+xml',
+        'application/atom+xml',
+        'application/xml',
+        'text/xml',
+    )
+    for content_type in content_types:
+        if content_type in header_content_type:
+            return True
+    return False
 
 
 def _publish_msg(data):
