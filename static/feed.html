@@ -32,7 +32,6 @@ window.onload = function() {
     feedUrl.style.visibility = 'visible';
   })
   .catch(error => {
-    console.log(error);
     let alert = document.getElementsByClassName('alert')[0];
     alert.textContent = error.message ?? "Er, We can't find that";
     alert.style.display = '';
