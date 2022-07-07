@@ -1,5 +1,9 @@
 # backpod service for GCP cloud run
 
+This is an attempt to implemete a backpod service using GCP cloud run. A live version is at https://backpod.podcastdrill.com
+
+Cloud Storage, PubSub, Firestore and Cloud Run are used.
+
 There are two servcies involved:
 
 1. web service
