@@ -82,8 +82,8 @@ def main(args, session, fh):
 
         if first_request:
             # get anything before <item> - this is the podcast detail
-            index = res.text.find('<item>')
-            fh.write(res.text[0:index])
+            detail = get_podcast_detail(res.text)
+            fh.write(detail)
             first_request = False
 
         # need this line, otherwise namespaces are added to each <item>
@@ -120,6 +120,16 @@ def main(args, session, fh):
         return False
     else:
         return True
+
+
+def get_podcast_detail(detail):
+    index = detail.find('<item>')
+    tmp = detail[0:index]
+    title_start_index = tmp.find('<title>') + len('<title>')
+
+    return ''.join([
+        tmp[0:title_start_index], 'backpod - ', tmp[title_start_index:]
+    ])
 
 
 def get_date(datetime_str):
@@ -195,4 +205,4 @@ if __name__ == "__main__":
     if status:
         logger.info(f'feed is saved as {filename}')
     else:
-        logger.info(f'fetch feed failed')
+        logger.info('fetch feed failed')
