@@ -1,3 +1,7 @@
+.PHONY: prod.sync_frontend
+prod.sync_frontend:
+	rsync -cvrlOD -e 'ssh' static/ het_dev:/var/www/backpod.podcastdrill.com/public
+
 .PHONY: dev.create_feed
 dev.create_feed:
 	curl -v -H "Content-Type: application/json" -d '{"url": "https://google.com"}' localhost:8888/feeds
