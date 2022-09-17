@@ -47,12 +47,15 @@
   </div>
 
   <div class="mt-5">
+    <form id="feedUrlForm">
     <label for="feedUrl" class="form-label">Feed URL</label>
-    <input type="text" id="feedUrl" class="form-control" aria-describedby="feedUrlHelperBlock">
+    <input type="text" id="feedUrl" class="form-control" aria-describedby="feedUrlHelperBlock" required>
     <div id="feedUrlHelpBlock" class="form-text"></div>
-    <button class="btn btn-primary mb-3 mt-2" id="feedUrlButton">Build Feed</button>
+    <button class="btn btn-primary mb-3 mt-2" type="submit">Build Feed</button>
+    </form>
   </div>
 
+  <div class="text-center text-secondary mt-5"><span class="ms-5"><a class="link-secondary" href="https://www.podcastdrill.com">Podcastdrill</a></span><span class="ms-5"><a class="link-secondary" href="https://github.com/shijialee/backpod">Github</a></span></div>
 </div>
 
   <!-- JavaScript Bundle with Popper -->

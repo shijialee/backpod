@@ -1,8 +1,9 @@
 "use strict";
 
 window.onload = function() {
-  let feedUrlButton = document.getElementById('feedUrlButton');
-  feedUrlButton?.addEventListener('click', function (e) {
+  let feedUrlForm = document.getElementById('feedUrlForm');
+  feedUrlForm?.addEventListener('submit', function (e) {
+    e.preventDefault();
     let urlInput = document.getElementById('feedUrl');
     let data = { 'url': urlInput.value };
 
