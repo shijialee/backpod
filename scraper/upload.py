@@ -7,5 +7,5 @@ def upload(file_path, filename):
     bucket_name = os.getenv("FEED_BUCKET_NAME")
     bucket = storage_client.bucket(bucket_name)
     new_blob = bucket.blob(filename)
-    new_blob.upload_from_filename(file_path)
+    new_blob.upload_from_filename(file_path, content_type='application/xml');
     print(f"file uploaded to: gs://{bucket_name}/{filename}")
